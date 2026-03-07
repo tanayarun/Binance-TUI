@@ -18,3 +18,9 @@ func Execute() {
 		os.Exit(1)
 	}
 }
+
+func init() {
+	rootCmd.AddCommand(watchCmd)
+  rootCmd.AddCommand(portfolioCmd)
+	rootCmd.AddCommand(tickersCmd)
+}
