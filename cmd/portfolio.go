@@ -1,12 +1,17 @@
 // Package cmd is used to get data from api
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
+
+	"github.com/spf13/cobra"
+)
 
 var portfolioCmd = &cobra.Command{
 	Use: "portfolio",
 	Short: "see your portfolio",
-}
-
-func init() {
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("Portfolio coming soon")
+		return nil
+	},
 }

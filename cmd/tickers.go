@@ -1,8 +1,16 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"fmt"
 
-var tickersCmd = &cobra.Command{}
+	"github.com/spf13/cobra"
+)
 
-func init() {
+var tickersCmd = &cobra.Command{
+	Use: "tickers",
+	Short: "Get the top tickers",
+	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Println("tickers coming soon")
+		return nil
+	},
 }
