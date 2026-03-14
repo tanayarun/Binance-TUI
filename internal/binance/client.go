@@ -5,9 +5,11 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -36,18 +38,15 @@ func NewClient(apiKey, secretKey string) *Client {
 func (c *Client) GetBalances() error {
 	timestamp := time.Now().UnixMilli()
 	queryString := fmt.Sprintf("timestamp=%d", timestamp)
-	fmt.Println(queryString)
 
 	mac := hmac.New(sha256.New, []byte(c.secretKey))
 	mac.Write([]byte(queryString))
 	signature := hex.EncodeToString(mac.Sum(nil))
-	fmt.Println(signature)
 
 	url := fmt.Sprintf("https://demo-api.binance.com/api/v3/account?timestamp=%d&signature=%s", timestamp, signature)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
@@ -56,18 +55,30 @@ func (c *Client) GetBalances() error {
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 	defer func() { _ = resp.Body.Close() }()
 
-	fmt.Println(resp.StatusCode)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(string(body))
+	var account AccountResponse
+	err = json.Unmarshal(body, &account)
+	if err != nil {
+		return err
+	}
+
+	for _, b := range account.Balances {
+		free, err := strconv.ParseFloat(b.Free, 64)
+		if err != nil {
+			continue
+		}
+		if free > 0 {
+			fmt.Printf("Asset: %s | Free: %s | Locked: %s\n", b.Asset, b.Free, b.Locked)
+		}
+	}
 
 	return nil
 }
