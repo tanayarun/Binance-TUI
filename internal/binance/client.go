@@ -35,7 +35,7 @@ func NewClient(apiKey, secretKey string) *Client {
 	}
 }
 
-func (c *Client) GetBalances() error {
+func (c *Client) GetBalances() ([]Balance, error) {
 	timestamp := time.Now().UnixMilli()
 	queryString := fmt.Sprintf("timestamp=%d", timestamp)
 
@@ -47,7 +47,7 @@ func (c *Client) GetBalances() error {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	req.Header.Set("X-MBX-APIKEY", c.apiKey)
@@ -55,30 +55,31 @@ func (c *Client) GetBalances() error {
 
 	resp, err := httpClient.Do(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer func() { _ = resp.Body.Close() }()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var account AccountResponse
 	err = json.Unmarshal(body, &account)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	var result []Balance
 	for _, b := range account.Balances {
 		free, err := strconv.ParseFloat(b.Free, 64)
 		if err != nil {
 			continue
 		}
 		if free > 0 {
-			fmt.Printf("Asset: %s | Free: %s | Locked: %s\n", b.Asset, b.Free, b.Locked)
+			result = append(result, b)
 		}
 	}
 
-	return nil
+	return result, nil
 }
