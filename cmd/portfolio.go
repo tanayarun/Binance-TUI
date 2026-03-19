@@ -19,7 +19,7 @@ var portfolioCmd = &cobra.Command{
 		client := binance.NewClient(apiKey, secretKey)
 
 		m := ui.NewPortfolioModel(client)
-		p := tea.NewProgram(m)
+		p := tea.NewProgram(m, tea.WithAltScreen())
 		_, err := p.Run()
 
 		return err
