@@ -48,10 +48,18 @@ func (m Model) View() string {
 	if len(m.balances) == 0 {
 		return "Loading..."
 	}
+
 	var sb strings.Builder
+
+	sb.WriteString(StyleHeader.Render("Portfolio :") + "\n")
+
 	for _, b := range m.balances {
-		fmt.Fprintf(&sb, "Asset: %s | Free: %s | Locked: %s\n", b.Asset, b.Free, b.Locked)
+		row := fmt.Sprintf("Asset: %s | Free: %s | Locked: %s", b.Asset, b.Free, b.Locked)
+		sb.WriteString(StyleGreen.Render(row) + "\n")
 	}
+
+	sb.WriteString("\n" + StyleGray.Render("q: quit"))
+
 	return sb.String()
 }
 
