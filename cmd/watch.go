@@ -1,9 +1,8 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
+	"github.com/tanayarun/Binance-TUI/internal/binance"
 )
 
 var watchCmd = &cobra.Command{
@@ -14,7 +13,16 @@ var watchCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		fmt.Println(symbol)
+
+		conn, err := binance.ConnectOrderbook(symbol)
+		if err != nil {
+			return err
+		}
+		err = binance.ReadOrderbook(conn)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	},
 }
