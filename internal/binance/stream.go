@@ -15,6 +15,13 @@ type DepthUpdate struct {
 	Asks   [][]string `json:"a"`
 }
 
+type MiniTicker struct {
+	Symbol  string `json:"s"`
+	Current string `json:"c"`
+	Open    string `json:"o"`
+	Volume  string `json:"v"`
+}
+
 func ConnectOrderbook(symbol string) (*websocket.Conn, error) {
 	url := fmt.Sprintf("wss://demo-stream.binance.com:9443/ws/%s@depth", strings.ToLower(symbol))
 	conn, _, err := websocket.DefaultDialer.DialContext(context.Background(), url, nil)
@@ -41,5 +48,32 @@ func ReadOrderbook(conn *websocket.Conn) error {
 		if len(update.Bids) > 0 && len(update.Asks) > 0 {
 			fmt.Printf("Best Bid: %s | Best Ask: %s\n", update.Bids[0][0], update.Asks[0][0])
 		}
+	}
+}
+
+func ConnectTickers() (*websocket.Conn, error) {
+	url := "wss://demo-stream.binance.com:9443/ws/!miniTicker@arr"
+	conn, _, err := websocket.DefaultDialer.DialContext(context.Background(), url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
+}
+
+func ReadTickers(conn *websocket.Conn) error {
+	for {
+		_, p, err := conn.ReadMessage()
+		if err != nil {
+			return err
+		}
+
+		var update []MiniTicker
+		err = json.Unmarshal(p, &update)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(update)
 	}
 }
