@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"github.com/tanayarun/Binance-TUI/internal/binance"
+	"github.com/tanayarun/Binance-TUI/internal/ui"
 )
 
 var watchCmd = &cobra.Command{
@@ -18,7 +20,10 @@ var watchCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		err = binance.ReadOrderbook(conn)
+
+		m := ui.NewOrderbookModel(symbol, conn)
+		p := tea.NewProgram(m, tea.WithAltScreen())
+		_, err = p.Run()
 		if err != nil {
 			return err
 		}

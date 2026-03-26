@@ -2,6 +2,8 @@ package ui
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gorilla/websocket"
@@ -53,7 +55,36 @@ func (m OrderbookModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m OrderbookModel) View() string {
-	return ""
+	if m.loading {
+		return "Conncting to " + m.symbol + "..."
+	}
+	if m.err != nil {
+		return "Error: " + m.err.Error()
+	}
+
+	var sb strings.Builder
+
+	sb.WriteString(StyleHeader.Render("Orderbook:") + "\n")
+
+	for i := range 5 {
+		if i < len(m.asks) {
+			row := fmt.Sprintf("Ask: %s | %s", m.asks[i][0], m.asks[i][1])
+			sb.WriteString(StyleRed.Render(row) + "\n")
+		}
+	}
+
+	sb.WriteString(StyleGray.Render("--------------") + "\n")
+
+	for i := range 5 {
+		if i < len(m.bids) {
+			column := fmt.Sprintf("Bids: %s | %s", m.bids[i][0], m.bids[i][1])
+			sb.WriteString(StyleGreen.Render(column) + "\n")
+		}
+	}
+
+	sb.WriteString("\n" + StyleGray.Render("q: quit"))
+
+	return sb.String()
 }
 
 func (m OrderbookModel) fetchOrderbook() tea.Cmd {
