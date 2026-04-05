@@ -9,3 +9,10 @@ var StyleGreen = lipgloss.NewStyle().Foreground(lipgloss.Color("#00ff88")).Width
 var StyleGray = lipgloss.NewStyle().Foreground(lipgloss.Color("#626262"))
 
 var StyleRed = lipgloss.NewStyle().Foreground(lipgloss.Color("#ff4d6d"))
+
+func PriceColor(change float64) lipgloss.Style {
+	if change >= 0 {
+		return StyleGreen
+	}
+	return StyleRed
+}

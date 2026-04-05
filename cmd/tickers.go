@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"github.com/tanayarun/Binance-TUI/internal/binance"
+	"github.com/tanayarun/Binance-TUI/internal/ui"
 )
 
 var tickersCmd = &cobra.Command{
@@ -14,7 +16,9 @@ var tickersCmd = &cobra.Command{
 			return err
 		}
 
-		err = binance.ReadTickers(conn)
+		m := ui.NewTickersModel(conn)
+		p := tea.NewProgram(m, tea.WithAltScreen())
+		_, err = p.Run()
 		if err != nil {
 			return err
 		}
