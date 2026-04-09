@@ -35,14 +35,18 @@ func NewClient(apiKey, secretKey string) *Client {
 	}
 }
 
+func sign(query, secret string) string {
+	mac := hmac.New(sha256.New, []byte(secret))
+	mac.Write([]byte(query))
+	signature := hex.EncodeToString(mac.Sum(nil))
+	return signature
+}
+
 func (c *Client) GetBalances() ([]Balance, error) {
 	timestamp := time.Now().UnixMilli()
 	queryString := fmt.Sprintf("timestamp=%d", timestamp)
 
-	mac := hmac.New(sha256.New, []byte(c.secretKey))
-	mac.Write([]byte(queryString))
-	signature := hex.EncodeToString(mac.Sum(nil))
-
+	signature := sign(queryString, c.secretKey)
 	url := fmt.Sprintf("https://demo-api.binance.com/api/v3/account?timestamp=%d&signature=%s", timestamp, signature)
 
 	req, err := http.NewRequest("GET", url, nil)
